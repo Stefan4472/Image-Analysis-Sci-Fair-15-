@@ -10,12 +10,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class HandleImage {
+public class PhotoAnalysis {
     public static void main(String[] args) {
         //try{Thread.sleep(2000);}
         //catch(InterruptedException e) {}
         boolean[] success = new boolean[1];
-        BufferedImage img = LoadImage("circle_test.png", success);
+        BufferedImage img = LoadImage("funnypic11.jpg", success);
         if(success[0]) {
             img = ScreenImage(img, Settings.GetRed(), Settings.GetGreen(), Settings.GetBlue(), Settings.GetVariance());
             AnalyzeImage(img);
@@ -28,12 +28,12 @@ public class HandleImage {
     public static BufferedImage ScreenImage(BufferedImage img, int r, int g, int b, double variance) {
         Println("RGB: " + r + "," + g + "," + b);
         /* set acceptable values for pixel color using guidelines and variance */
-        int r_low = (int)(r - r * variance);
-        int r_high = (int)(r + r * variance);
-        int g_low = (int)(g - g * variance);
-        int g_high = (int)(g + g * variance);
-        int b_low = (int)(b - b * variance);
-        int b_high = (int)(b + b * variance);
+        int r_low = (int)(r - 255 * variance);
+        int r_high = (int)(r + 255 * variance);
+        int g_low = (int)(g - 255 * variance);
+        int g_high = (int)(g + 255 * variance);
+        int b_low = (int)(b - 255 * variance);
+        int b_high = (int)(b + 255 * variance);
         Println("Values are " + r_low +","+ r_high+"," + g_low+"," + g_high+"," + b_low+"," + b_high);
         int height = img.getHeight();
         int width = img.getWidth();
