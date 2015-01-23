@@ -14,13 +14,26 @@ public class GUI extends javax.swing.JFrame {
     public static BufferedImage filtered = null; /* filtered image */
     public GUI() {
         initComponents();
+        Settings.LoadSettings();
         variance_slider.setValue(0);
         variance_textfield.setText("0%");
+        photo_textfield.setText(Settings.GetFileImport());
+        if(Settings.GetRed() != 0)
+            filter_R.setText(Integer.toString(Settings.GetRed()));
+        if(Settings.GetGreen() != 0)
+            filter_G.setText(Integer.toString(Settings.GetGreen()));
+        if(Settings.GetBlue() != 0)
+            filter_B.setText(Integer.toString(Settings.GetBlue()));
+        
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
 
+        saveimage_group = new javax.swing.ButtonGroup();
+        resize_dialogue = new javax.swing.JDialog();
+        resize_message = new javax.swing.JLabel();
+        resize_ok = new javax.swing.JButton();
         photo = new javax.swing.JLabel();
         importphoto_button = new javax.swing.JButton();
         photo_textfield = new javax.swing.JTextField();
@@ -36,6 +49,45 @@ public class GUI extends javax.swing.JFrame {
         variance_slider = new javax.swing.JSlider();
         variance_textfield = new javax.swing.JTextField();
         filterRGB_button = new javax.swing.JButton();
+        analyze_button = new javax.swing.JButton();
+        increment_variance = new javax.swing.JButton();
+        decrement_variance = new javax.swing.JButton();
+        saveimage_button = new javax.swing.JButton();
+        savejpg = new javax.swing.JRadioButton();
+        savepng = new javax.swing.JRadioButton();
+        savegif = new javax.swing.JRadioButton();
+        savebmp = new javax.swing.JRadioButton();
+        savefile_textfield = new javax.swing.JTextField();
+
+        resize_dialogue.setType(java.awt.Window.Type.POPUP);
+
+        resize_ok.setText("Ok");
+        resize_ok.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resize_okActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout resize_dialogueLayout = new javax.swing.GroupLayout(resize_dialogue.getContentPane());
+        resize_dialogue.getContentPane().setLayout(resize_dialogueLayout);
+        resize_dialogueLayout.setHorizontalGroup(
+            resize_dialogueLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(resize_dialogueLayout.createSequentialGroup()
+                .addComponent(resize_message, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(resize_dialogueLayout.createSequentialGroup()
+                .addGap(110, 110, 110)
+                .addComponent(resize_ok, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        resize_dialogueLayout.setVerticalGroup(
+            resize_dialogueLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, resize_dialogueLayout.createSequentialGroup()
+                .addComponent(resize_message, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(resize_ok)
+                .addContainerGap(22, Short.MAX_VALUE))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -81,6 +133,8 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
+        variance_textfield.setEditable(false);
+
         filterRGB_button.setText("Go!");
         filterRGB_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -88,12 +142,69 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
+        analyze_button.setText("Analyze Image");
+        analyze_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                analyze_buttonActionPerformed(evt);
+            }
+        });
+
+        increment_variance.setText("+");
+        increment_variance.setMargin(new java.awt.Insets(1, 5, 1, 5));
+        increment_variance.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                increment_varianceActionPerformed(evt);
+            }
+        });
+
+        decrement_variance.setText("-");
+        decrement_variance.setMargin(new java.awt.Insets(1, 5, 1, 5));
+        decrement_variance.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                decrement_varianceActionPerformed(evt);
+            }
+        });
+
+        saveimage_button.setText("Save File As...");
+        saveimage_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveimage_buttonActionPerformed(evt);
+            }
+        });
+
+        saveimage_group.add(savejpg);
+        savejpg.setText(".jpg");
+        savejpg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savejpgActionPerformed(evt);
+            }
+        });
+
+        saveimage_group.add(savepng);
+        savepng.setText(".png");
+
+        saveimage_group.add(savegif);
+        savegif.setText(".gif");
+
+        saveimage_group.add(savebmp);
+        savebmp.setText(".bmp");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(620, 620, 620)
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(620, 620, 620)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(photo_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(importphoto_button, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(photo, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -115,30 +226,43 @@ public class GUI extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(variance_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(variance_slider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(620, 620, 620)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(620, 620, 620)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(photo_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(importphoto_button, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(variance_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(increment_variance, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(decrement_variance, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(variance_slider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(saveimage_button, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(analyze_button, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(savefile_textfield))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(10, 10, 10)
+                                    .addComponent(savejpg)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(savepng)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(savegif)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(savebmp))))))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {importphoto_button, photo_textfield});
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {filterRGB_button, filter_B, filter_G, filter_R});
 
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {decrement_variance, increment_variance});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(photo, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(photo_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -162,14 +286,29 @@ public class GUI extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
-                            .addComponent(variance_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(variance_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(increment_variance)
+                            .addComponent(decrement_variance))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(variance_slider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(photo, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(310, 310, 310))
+                        .addComponent(variance_slider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(analyze_button)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(saveimage_button)
+                            .addComponent(savefile_textfield, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(savejpg)
+                            .addComponent(savepng)
+                            .addComponent(savegif)
+                            .addComponent(savebmp))))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {importphoto_button, jLabel2, photo_textfield});
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {increment_variance, variance_textfield});
 
         pack();
     }// </editor-fold>                        
@@ -178,11 +317,18 @@ public class GUI extends javax.swing.JFrame {
         String file_name = photo_textfield.getText();
         boolean[] success = new boolean[1];
         original = PhotoAnalysis.LoadImage(file_name, success);
+        Settings.SetFileImport(file_name);
         if(success[0]) {
+            /* crop dialogue */
+            if(original.getHeight() > 600 || original.getWidth() > 600) {
+                resize_message.setText("The image \"" + file_name + "\" will be resized to 600x600.");
+                filtered = original;
+                resize_dialogue.setVisible(true);
+            }
             //photo.setIcon(new javax.swing.ImageIcon(getClass().getResource(file_name)));
-            filtered = PhotoAnalysis.ScreenImage(original, Settings.GetRed(), Settings.GetGreen(), Settings.GetBlue(), (variance_slider.getValue()) / 100);
             photo.setText("");
-            photo.setIcon(new ImageIcon(filtered));
+            filtered = PhotoAnalysis.ScreenImage(original, Settings.GetRed(), Settings.GetGreen(), Settings.GetBlue(), Settings.GetVariance());
+            photo.setIcon(new ImageIcon(original));
         } else {
             photo_textfield.setText("Error reading file");
         }
@@ -196,7 +342,7 @@ public class GUI extends javax.swing.JFrame {
             Settings.SetRed(r);
             Settings.SetGreen(g);
             Settings.SetBlue(b);
-            filtered = PhotoAnalysis.ScreenImage(original, Settings.GetRed(), Settings.GetGreen(), Settings.GetBlue(), (variance_slider.getValue()) / 100);
+            filtered = PhotoAnalysis.ScreenImage(original, Settings.GetRed(), Settings.GetGreen(), Settings.GetBlue(), Settings.GetVariance());
             //ImageIcon display_photo = new ImageIcon(filtered);
             photo.setIcon(new ImageIcon(filtered));
         } catch(ArrayIndexOutOfBoundsException e) {
@@ -213,12 +359,55 @@ public class GUI extends javax.swing.JFrame {
 
     private void variance_sliderStateChanged(javax.swing.event.ChangeEvent evt) {                                             
         double variance = variance_slider.getValue() / 100.00;
+        Settings.SetVariance(variance);
         variance_textfield.setText(variance_slider.getValue() + "%");
         if(original != null) {
-            filtered = PhotoAnalysis.ScreenImage(original, Settings.GetRed(), Settings.GetGreen(), Settings.GetBlue(), (variance_slider.getValue()) / 100);
+            filtered = PhotoAnalysis.ScreenImage(original, Settings.GetRed(), Settings.GetGreen(), Settings.GetBlue(), Settings.GetVariance());
             photo.setIcon(new ImageIcon(filtered));
         }
     }                                            
+
+    private void analyze_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                               
+        PhotoAnalysis.AnalyzeImage(filtered);
+    }                                              
+
+    private void increment_varianceActionPerformed(java.awt.event.ActionEvent evt) {                                                   
+        variance_slider.setValue(variance_slider.getValue() + 1);
+        Settings.SetVariance(variance_slider.getValue() / 100);
+        variance_textfield.setText(variance_slider.getValue() + "%");
+        PhotoAnalysis.GetSupportedFileTypes();
+    }                                                  
+
+    private void decrement_varianceActionPerformed(java.awt.event.ActionEvent evt) {                                                   
+        variance_slider.setValue(variance_slider.getValue() - 1);
+        Settings.SetVariance(variance_slider.getValue() / 100);
+        variance_textfield.setText(variance_slider.getValue() + "%");
+    }                                                  
+
+    private void savejpgActionPerformed(java.awt.event.ActionEvent evt) {                                        
+       
+    }                                       
+
+    private void saveimage_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                                 
+        String file_name = savefile_textfield.getText();
+        if(file_name == "") {
+            //dialogue.setVisible(true);
+            //dialogue.setText("Error: Please specify file name to save as");
+        } else {
+        if(savejpg.isEnabled())
+            PhotoAnalysis.SaveImage(file_name, "jpg", filtered);
+        else if(savepng.isEnabled())
+            PhotoAnalysis.SaveImage(file_name, "png", filtered);
+        else if(savegif.isEnabled())
+            PhotoAnalysis.SaveImage(file_name, "gif", filtered);
+        else if(savebmp.isEnabled())
+            PhotoAnalysis.SaveImage(file_name, "bmp", filtered);
+        }
+    }                                                
+
+    private void resize_okActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        resize_dialogue.setVisible(false);
+    }                                         
 
     /**
      * @param args the command line arguments
@@ -256,11 +445,14 @@ public class GUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify                     
+    private javax.swing.JButton analyze_button;
+    private javax.swing.JButton decrement_variance;
     private javax.swing.JButton filterRGB_button;
     private javax.swing.JTextField filter_B;
     private javax.swing.JTextField filter_G;
     private javax.swing.JTextField filter_R;
     private javax.swing.JButton importphoto_button;
+    private javax.swing.JButton increment_variance;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -269,6 +461,16 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel photo;
     private javax.swing.JTextField photo_textfield;
+    private javax.swing.JDialog resize_dialogue;
+    private javax.swing.JLabel resize_message;
+    private javax.swing.JButton resize_ok;
+    private javax.swing.JRadioButton savebmp;
+    private javax.swing.JTextField savefile_textfield;
+    private javax.swing.JRadioButton savegif;
+    private javax.swing.JButton saveimage_button;
+    private javax.swing.ButtonGroup saveimage_group;
+    private javax.swing.JRadioButton savejpg;
+    private javax.swing.JRadioButton savepng;
     private javax.swing.JSlider variance_slider;
     private javax.swing.JTextField variance_textfield;
     // End of variables declaration                   
