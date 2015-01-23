@@ -21,13 +21,14 @@ public class PhotoAnalysis {
             AnalyzeImage(img);
             //Graphics g = img.getGraphics();
             //g.DrawImage(img, 0, 0, 600, 800, null); /* scales to 600 x 800 */
-            SaveImage("save_test", img);
+            //SaveImage("save_test", img);
         }
     }
     /* Idea: Get the int array of the buffered image and manipulate that, then copy it back - much faster */
     public static BufferedImage ScreenImage(BufferedImage img, int r, int g, int b, double variance) {
         Println("RGB: " + r + "," + g + "," + b);
         /* set acceptable values for pixel color using guidelines and variance */
+       
         int r_low = (int)(r - 255 * variance);
         int r_high = (int)(r + 255 * variance);
         int g_low = (int)(g - 255 * variance);
@@ -57,6 +58,10 @@ public class PhotoAnalysis {
         Println(replaced + " pixels replaced.");
         return screened;
     }
+    public static BufferedImage ResizeImage(BufferedImage img, int width, int height) {
+        //return Thumbnails.of(img).size(width, height).asBufferedImage();
+        return img;
+    }           
     public static BufferedImage FilterGrayscale(BufferedImage img) {
         return img;
     }
@@ -66,10 +71,6 @@ public class PhotoAnalysis {
         double running_average = 0.0;
         int pixel_counter = 0;
         int running_sum = 0;
-        int black_pixels = 0;
-        int white_pixels = 0;
-        Color myWhite = new Color(255, 255, 255); /* set to color white */
-        int white_rgb = myWhite.getRGB(); /* get int rgb value for use later */
         for(int i = 0; i < height; i++) {
             for(int j = 0; j < width; j++) {
                 int pixel_rgb = img.getRGB(j, i);
@@ -78,8 +79,6 @@ public class PhotoAnalysis {
                         int red = (pixel_rgb >> 16) & 0xff;
                         int green = (pixel_rgb >> 8) & 0xff;
                         int blue = (pixel_rgb) & 0xff;
-                        if (red < 50 && green < 50 && blue < 50)
-                             black_pixels++;
                         pixel_counter++;
                         running_sum += red + green + blue;
                     }
@@ -88,7 +87,6 @@ public class PhotoAnalysis {
             running_average = running_sum / pixel_counter;
             Println((height * width) + " total pixels scanned.");
             Println("Average for " + pixel_counter + " pixels is " + running_average);
-            Println("Found " + black_pixels + " black pixels and " + white_pixels + " white pixels.");
     }
     public static BufferedImage LoadImage(String image_name, boolean load[]) {
         load[0] = true;
@@ -101,12 +99,12 @@ public class PhotoAnalysis {
         }
         return img;
     }
-    public static boolean SaveImage(String file_name, BufferedImage to_save) {
+    public static boolean SaveImage(String file_name, String ending, BufferedImage to_save) {
         boolean success = true;
-        File output_file = new File(file_name + ".png");
+        File output_file = new File(file_name + "." + ending);
         try {
-            ImageIO.write(to_save, "png", output_file);
-            Println("File saved as " + file_name + ".png");
+            ImageIO.write(to_save, ending, output_file);
+            Println("File saved as " + file_name + "." + ending);
         } catch(IOException e) {
             Println("Error writing image.");
             success = false;
