@@ -13,6 +13,9 @@ public class GUI extends javax.swing.JFrame {
     public GUI() {
         initComponents();
         Settings.LoadSettings(); /* load last-used filenames and variance settings */
+        Settings.LoadTrials();
+        System.out.println("Loading trials: ");
+        Settings.PrintTrials();
         variance_slider.setValue(0);
         variance_textfield.setText("0%");
         /* set all fields based on last-entered info */
@@ -718,6 +721,13 @@ public class GUI extends javax.swing.JFrame {
         boolean[] success = new boolean[1];
         String trial_name = importTrial_textfield.getText();
         Trial new_trial = Trial.ReadDataFile(trial_name, success);
+        if(success[0]) {
+            System.out.println("New trial: ");
+            Trial.Print(new_trial);
+            Settings.AddTrial(new_trial); /* add to the current array of trials */
+            System.out.println("Updated Trial List: ");
+            Settings.PrintTrials();
+        } else System.out.println("Error");
     }                                                  
 
     /**
