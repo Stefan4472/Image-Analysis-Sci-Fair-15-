@@ -11,6 +11,7 @@ import java.util.Set;
 
 
 public class PhotoAnalysis {
+    public static int pixels_replaced = 0;
     public static void main(String[] args) {
         //try{Thread.sleep(2000);}
         //catch(InterruptedException e) {}
@@ -28,7 +29,6 @@ public class PhotoAnalysis {
     public static BufferedImage ScreenImage(BufferedImage img, int r, int g, int b, double variance) {
         Println("RGB: " + r + "," + g + "," + b);
         /* set acceptable values for pixel color using guidelines and variance */
-       
         int r_low = (int)(r - 255 * variance);
         int r_high = (int)(r + 255 * variance);
         int g_low = (int)(g - 255 * variance);
@@ -56,8 +56,10 @@ public class PhotoAnalysis {
             }
         }
         Println(replaced + " pixels replaced.");
+        pixels_replaced = replaced;
         return screened;
     }
+    public static int GetPixelsReplaced() {return pixels_replaced;}
     public static BufferedImage ResizeImage(BufferedImage img, int width, int height) {
         //return Thumbnails.of(img).size(width, height).asBufferedImage();
         return img;
@@ -65,10 +67,10 @@ public class PhotoAnalysis {
     public static BufferedImage FilterGrayscale(BufferedImage img) {
         return img;
     }
-    public static void AnalyzeImage(BufferedImage img) {
+    public static double[] AnalyzeImage(BufferedImage img) {
+        double[] average = {0.0};
         int height = img.getHeight();
         int width = img.getWidth();
-        double running_average = 0.0;
         int pixel_counter = 0;
         int running_sum = 0;
         for(int i = 0; i < height; i++) {
@@ -84,9 +86,14 @@ public class PhotoAnalysis {
                     }
                 }
             }
-            running_average = running_sum / pixel_counter;
-            Println((height * width) + " total pixels scanned.");
-            Println("Average for " + pixel_counter + " pixels is " + running_average);
+        if(pixel_counter != 0 && running_sum != 0)
+            average[0] = Math.floor(running_sum / pixel_counter * 100) / 100;
+        else
+            average[0] = 0.0;
+        System.out.println("Pixel counter is " + pixel_counter);
+        //Println((height * width) + " total pixels scanned.");
+        //Println("Average for " + pixel_counter + " pixels is " + running_average);
+        return average;
     }
     public static BufferedImage LoadImage(String image_name, boolean load[]) {
         load[0] = true;
