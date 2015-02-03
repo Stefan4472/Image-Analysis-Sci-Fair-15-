@@ -4,13 +4,19 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Trial {
     public static String file_name;
     public static String trial_name;
     public static Double brightness_change;
-    public static int rank;
+    //public static int rank;
     
+    public Trial(String file_name, String trial_name, Double brightness_change) {
+        this.file_name = file_name;
+        this.trial_name = trial_name;
+        this.brightness_change = brightness_change;
+    }
     public static void SetTrial(String file, String trial, Double change) {
         file_name = file;
         trial_name = trial;
@@ -23,7 +29,25 @@ public class Trial {
     public static String GetTrialName() {return trial_name;}
     public static void SetBrightnessChange(Double change) {brightness_change = change;}
     public static Double GetBrightnessChange() {return brightness_change;}
-    
+    public static ArrayList<String> GetArrayList() {
+        /*ArrayList<String> trial_data = new ArrayList<>(3);
+        trial_data.set(0, file_name);
+        trial_data.set(1, trial_name);
+        trial_data.set(2, Double.toString(brightness_change)); */
+        ArrayList<String> trial_data = new ArrayList<>();
+        trial_data.add(file_name);
+        trial_data.add(trial_name);
+        trial_data.add(Double.toString(brightness_change));
+        return trial_data;
+    }
+    /* prints trial data (for debugging purposes) */
+    public static void Print(Trial trial) {
+        System.out.print(Trial.GetFileName() + " | " + trial.GetTrialName() + " | " + trial.GetBrightnessChange());
+    }
+    /* prints trial data (for debugging purposes) */
+    public static void Println(Trial trial) {
+        System.out.println(trial.GetFileName() + " | " + trial.GetTrialName() + " | " + trial.GetBrightnessChange());
+    }
     /* gets trial info from specified file */
     public static Trial ReadDataFile(String file, boolean success[]) {
         success[0] = true;
@@ -47,9 +71,9 @@ public class Trial {
                 }
                 line_counter++;
             }
-            Trial import_trial = new Trial();
-            import_trial.SetTrial(file_name, trial_name, brightness_change);
-            return import_trial;
+            System.out.println("Loading trial " + trial_name);
+            //Trial import_trial = new Trial(file_name, trial_name, brightness_change);       
+            return new Trial(file_name, trial_name, brightness_change);
         } catch (IOException e) {
             //Print("Error reading settings file\n");
             success[0] = false;
