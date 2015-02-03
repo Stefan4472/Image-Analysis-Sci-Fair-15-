@@ -7,33 +7,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Trial {
-    public static String file_name;
-    public static String trial_name;
-    public static Double brightness_change;
+    public String file_name;
+    public String trial_name;
+    public Double brightness_change;
     //public static int rank;
     
+    public Trial() {}
     public Trial(String file_name, String trial_name, Double brightness_change) {
         this.file_name = file_name;
         this.trial_name = trial_name;
         this.brightness_change = brightness_change;
     }
-    public static void SetTrial(String file, String trial, Double change) {
+    public void SetTrial(String file, String trial, Double change) {
         file_name = file;
         trial_name = trial;
         brightness_change = change;
     }
     /* methods for setting and getting object attributes */
-    public static void SetFileName(String name) {file_name = name;}
-    public static String GetFileName() {return file_name;}
-    public static void SetTrialName(String name) {trial_name = name;}
-    public static String GetTrialName() {return trial_name;}
-    public static void SetBrightnessChange(Double change) {brightness_change = change;}
-    public static Double GetBrightnessChange() {return brightness_change;}
-    public static ArrayList<String> GetArrayList() {
-        /*ArrayList<String> trial_data = new ArrayList<>(3);
-        trial_data.set(0, file_name);
-        trial_data.set(1, trial_name);
-        trial_data.set(2, Double.toString(brightness_change)); */
+    public void SetFileName(String name) {file_name = name;}
+    public String GetFileName() {return file_name;}
+    public void SetTrialName(String name) {trial_name = name;}
+    public String GetTrialName() {return trial_name;}
+    public void SetBrightnessChange(Double change) {brightness_change = change;}
+    public Double GetBrightnessChange() {return brightness_change;}
+    public ArrayList<String> GetArrayList() {
         ArrayList<String> trial_data = new ArrayList<>();
         trial_data.add(file_name);
         trial_data.add(trial_name);
@@ -41,15 +38,15 @@ public class Trial {
         return trial_data;
     }
     /* prints trial data (for debugging purposes) */
-    public static void Print(Trial trial) {
-        System.out.print(Trial.GetFileName() + " | " + trial.GetTrialName() + " | " + trial.GetBrightnessChange());
+    public void Print(Trial trial) {
+        System.out.print(trial.GetFileName() + " | " + trial.GetTrialName() + " | " + trial.GetBrightnessChange());
     }
     /* prints trial data (for debugging purposes) */
-    public static void Println(Trial trial) {
+    public void Println(Trial trial) {
         System.out.println(trial.GetFileName() + " | " + trial.GetTrialName() + " | " + trial.GetBrightnessChange());
     }
     /* gets trial info from specified file */
-    public static Trial ReadDataFile(String file, boolean success[]) {
+    public Trial ReadDataFile(String file, boolean success[]) {
         success[0] = true;
         file_name = file;
         try {
@@ -80,7 +77,7 @@ public class Trial {
         }
         return null; /* unable to import */
     }
-    public static boolean WriteTrial(Trial trial) {
+    public boolean WriteTrial(Trial trial) {
         boolean success = true;
         try {
             FileWriter file = new FileWriter(trial.GetFileName());
@@ -99,7 +96,7 @@ public class Trial {
         return success;
     }
     /* writes trial info to file */
-    public static boolean WriteDataFile(String file_name, String trial_name, Double brightness_change) {
+    public boolean WriteDataFile(String file_name, String trial_name, Double brightness_change) {
         boolean success = true;
         try {
             FileWriter file = new FileWriter(file_name);
@@ -117,7 +114,7 @@ public class Trial {
         }
         return success;
     }
-    public static int Compare(Trial compare) {
+    public int Compare(Trial compare) {
         int action = 0; /* +1 : move up; 0 : equal; -1 : move down;*/
         if(brightness_change > compare.brightness_change)
             return 1;
