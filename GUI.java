@@ -758,7 +758,8 @@ public class GUI extends javax.swing.JFrame {
     private void importTrial_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                                   
         boolean[] success = new boolean[1];
         String trial_name = importTrial_textfield.getText();
-        Trial new_trial = Trial.ReadDataFile(trial_name, success); /* read the chosen trial's data file */
+        Trial new_trial = new Trial();
+        new_trial = new_trial.ReadDataFile(trial_name, success); /* read the chosen trial's data file */
         if(success[0]) { /* data from trial successfully read into 'new_trial' */
             settings.AddTrial(new_trial); /* add to the current array of trials */
             SetTrialTextArea();
@@ -796,7 +797,7 @@ public class GUI extends javax.swing.JFrame {
             /* get brightness change over course of this trial */
             double difference = photo_analysis.AnalyzeImage(after) - photo_analysis.AnalyzeImage(before); 
             Trial this_trial = new Trial(trial_filename.getText(), trial_name.getText(), difference);
-            boolean write_success = Trial.WriteTrial(this_trial);
+            boolean write_success = this_trial.WriteTrial(this_trial);
             if(write_success) /* trial saved successfully - close dialogue window */
                 save_trial.setVisible(false);
             else
@@ -817,28 +818,28 @@ public class GUI extends javax.swing.JFrame {
     public void SetTrialTextArea() {
         boolean[] success = new boolean[1];
         ArrayList<Trial> trial_list = settings.GetTrials();
-        System.out.println("\nVector has " + trial_list.size() + " elements");
         /* holds all loaded trial data in a 2D list for easy reference */
-    ArrayList<ArrayList<String>> trial_data = new ArrayList<>();
-    for(int i = 0; i < trial_list.size(); i++) { /* populate arraylist */
+        ArrayList<ArrayList<String>> trial_data = new ArrayList<>();
+        for(int i = 0; i < trial_list.size(); i++) { /* populate arraylist */
             /* load trial */
-            Trial this_trial = Trial.ReadDataFile(trial_list.get(i).GetFileName(), success);
+            Trial this_trial = new Trial();
+            this_trial = this_trial.ReadDataFile(trial_list.get(i).GetFileName(), success);
             if(success[0]) {
                 trial_data.add(this_trial.GetArrayList()); /* get trial's arraylist and add to 2D arraylist */   
-        }
-    }
-    if(trial_data.size() > 1) {
-        for(int i = 0; i < trial_data.size() - 1; i++) {
-            ArrayList<String> current_trial_data = trial_data.get(i);
-            double current = Double.parseDouble(current_trial_data.get(2));
-            int num = 1;
-            while(current > Double.parseDouble(trial_data.get(i + num).get(2))) {
-                trial_data.set(i + num, current_trial_data);
-                trial_data.set(i + num - 1, trial_data.get(i + num));
-                num++;
             }
         }
-    }
+        if(trial_data.size() > 1) {
+            for(int i = 0; i < trial_data.size() - 1; i++) {
+                ArrayList<String> current_trial_data = trial_data.get(i);
+                double current = Double.parseDouble(current_trial_data.get(2));
+                int num = 1;
+                while(current > Double.parseDouble(trial_data.get(i + num).get(2))) {
+                    trial_data.set(i + num, current_trial_data);
+                    trial_data.set(i + num - 1, trial_data.get(i + num));
+                    num++;
+                }
+            }
+        }
     String text_area = "";
     /* now we need to format the data (rank\) file_name | trial_name | brightness\n)*/
     int longest_filename = 0;
