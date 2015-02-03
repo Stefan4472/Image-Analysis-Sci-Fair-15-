@@ -51,8 +51,9 @@ public class Settings {
         return remove_success;
     }
     public void PrintTrials() {
+        Trial trial = new Trial();
         for(int i = 0; i < loaded_trials.size(); i++)
-            Trial.Println(loaded_trials.get(i));
+            trial.Println(loaded_trials.get(i));
         System.out.println(loaded_trials.size() + " trials loaded.");
     }
     public Settings LoadSettings() {
@@ -120,8 +121,8 @@ public class Settings {
             String line = "";
             while((line = read_trials.readLine()) != null) {
                 boolean success[] = new boolean[1];
-                Trial load_trial = Trial.ReadDataFile(line, success); /* attempts to read
-                in trial data */
+                Trial load_trial = new Trial();
+                load_trial = load_trial.ReadDataFile(line, success);
                 if(success[0]) {
                     AddTrial(load_trial); /* add trial to array */
                 } 
