@@ -112,7 +112,7 @@ public class Trial {
             write_data.write(Double.toString(brightness_change));
             write_data.close();
         } catch(IOException e) {
-            //Print("Error writing to file\n");
+            System.out.println("Error writing to file\n");
             success = false;
         }
         return success;
