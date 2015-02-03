@@ -24,11 +24,31 @@ public class Settings {
     public String GetFileImport() {return file_import;}
     public void SetFileImport(String file_name) {file_import = file_name; UpdateSettings();}
     public ArrayList<Trial> GetTrials() {return loaded_trials;}
+    public void SetTrials(ArrayList<Trial> new_list) {loaded_trials = new_list;}
     public void AddTrial(Trial add) { /* adds trial to vector of trials */
         loaded_trials.add(add);
-        System.out.println("Adding trial " + add.GetTrialName());
-        System.out.println("Printing trials");
         UpdateTrials();
+    }
+    /* removes trial from array list */
+    public boolean RemoveTrial(Trial remove) {
+        boolean remove_success;
+        do {
+            remove_success = loaded_trials.remove(remove);
+        }while (remove_success);
+        return remove_success;
+    }
+    /* removes trial from array list using String trial_name */
+    public boolean RemoveTrial(String remove_name) {
+        boolean remove_success = false;
+        for(int i = loaded_trials.size() - 1; i > -1; i--) {
+            /* if trial name matches name of trial to remove, remove it from list */
+            if(loaded_trials.get(i).GetTrialName().equals(remove_name)) {
+                System.out.println("Removed " + loaded_trials.get(i).GetTrialName());
+                loaded_trials.remove(i);
+                remove_success = true; /* specified trial found and removed successfully */
+            }
+        }
+        return remove_success;
     }
     public void PrintTrials() {
         for(int i = 0; i < loaded_trials.size(); i++)
