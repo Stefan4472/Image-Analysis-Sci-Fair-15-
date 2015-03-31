@@ -1,4 +1,5 @@
 //import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 //import java.awt.image.ImageObserver;
@@ -6,30 +7,29 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
-import net.coobird.thumbnailator.Thumbnails;
+import javax.swing.*;
 
 public class GUI extends javax.swing.JFrame {
-    public BufferedImage original = null; /* original image loaded by user */
-    public BufferedImage filtered = null; /* filtered image */
-    public BufferedImage compare = null; /* image to compare (optional) */
-    private Settings settings;
+    private BufferedImage original = null; /* original image loaded by user */
+    private BufferedImage filtered = null; /* filtered image */
+    private BufferedImage compare = null; /* image to compare (optional) */
+    private Settings settings = new Settings("AppleAnalysis_Settings");
+    private Photo photo_handler = new Photo();
     /* holds all loaded trial data in a 2D list for easy reference */
     //public ArrayList<ArrayList<String>> trial_data = new ArrayList<>();
-    public GUI(Settings settings) {
-        this.settings = settings;
+    public GUI() {
         initComponents();
-        settings.LoadTrials();
+        settings.loadTrials("AppleAnalysis_Trials");
         UpdateTrialsComboBox();
         System.out.println();
-        SetTrialTextArea();
+        setTrialTextArea();
         variance_slider.setValue(0);
         variance_textfield.setText("0%");
         /* set all fields based on last-entered info */
-        import_photo.setText(settings.GetFileImport());
-        filter_r.setValue(settings.GetRed());
-        filter_g.setValue(settings.GetGreen());
-        filter_b.setValue(settings.GetBlue());  
+        import_photo.setText(settings.fileImport());
+        filter_r.setValue(settings.red());
+        filter_g.setValue(settings.green());
+        filter_b.setValue(settings.blue());
         /* initialize radio buttons */
         before_button.setSelected(true);
         savejpg.setSelected(true);
@@ -125,12 +125,6 @@ public class GUI extends javax.swing.JFrame {
         jLabel12.setText("Before:");
 
         jLabel13.setText("After: ");
-
-        after_field.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                after_fieldActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout save_trialLayout = new javax.swing.GroupLayout(save_trial.getContentPane());
         save_trial.getContentPane().setLayout(save_trialLayout);
@@ -605,20 +599,18 @@ public class GUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>                        
 
-    private void importphoto_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                                   
-        Settings settings = new Settings();
-        settings.LoadSettings();
+    private void importphoto_buttonActionPerformed(java.awt.event.ActionEvent evt) {
         String file_name = import_photo.getText();
         boolean[] success = new boolean[1];
-        PhotoAnalysis photo_analysis = new PhotoAnalysis();
-        original = photo_analysis.LoadImage(file_name, success);
+        Photo photo_analysis = new Photo();
+        original = photo_analysis.loadImage(file_name, success);
         if(success[0]) { 
-            settings.SetFileImport(file_name);
+            settings.setFileImport(file_name);
             //photo.setIcon(new javax.swing.ImageIcon(getClass().getResource(file_name)));
             photo.setText("");
-            filtered = photo_analysis.ScreenImage(original, settings.GetRed(), settings.GetGreen(), settings.GetBlue(), settings.GetVariance());
+            filtered = photo_analysis.ScreenImage(original, settings.red(), settings.green(), settings.blue(), settings.variance());
             try {
-                photo.setIcon(new ImageIcon(GetScaledImage(filtered))); /* set display photo */
+                photo.setIcon(new ImageIcon(photo_handler.getScaledImage(filtered))); /* set display photo */
             } catch (IOException ex) {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -632,14 +624,14 @@ public class GUI extends javax.swing.JFrame {
             int r = (Integer)filter_r.getValue();
             int g = (Integer)(filter_g.getValue());
             int b = (Integer)(filter_b.getValue());
-            settings.UpdateSettings();
-            settings.SetRed(r);
-            settings.SetGreen(g);
-            settings.SetBlue(b);
-            PhotoAnalysis photo_analysis = new PhotoAnalysis();
-            filtered = photo_analysis.ScreenImage(filtered, settings.GetRed(), settings.GetGreen(), settings.GetBlue(), settings.GetVariance());
+            settings.updateSettings("AppleAnalysis_Settings");
+            settings.setRed(r);
+            settings.setGreen(g);
+            settings.setBlue(b);
+            Photo photo_analysis = new Photo();
+            filtered = photo_analysis.ScreenImage(filtered, settings.red(), settings.green(), settings.blue(), settings.variance());
         try {        
-            photo.setIcon(new ImageIcon(GetScaledImage(filtered)));
+            photo.setIcon(new ImageIcon(photo_handler.getScaledImage(filtered)));
         } catch (IOException ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -647,13 +639,13 @@ public class GUI extends javax.swing.JFrame {
 
     private void variance_sliderStateChanged(javax.swing.event.ChangeEvent evt) {                                             
         double variance = variance_slider.getValue() / 100.00;
-        settings.SetVariance(variance);
+        settings.setVariance(variance);
         variance_textfield.setText(variance_slider.getValue() + "%");
         if(original != null) {
-            PhotoAnalysis photo_analysis = new PhotoAnalysis();
-            filtered = photo_analysis.ScreenImage(original, settings.GetRed(), settings.GetGreen(), settings.GetBlue(), settings.GetVariance());
+            Photo photo_analysis = new Photo();
+            filtered = photo_analysis.ScreenImage(original, settings.red(), settings.green(), settings.blue(), settings.variance());
             try {
-                photo.setIcon(new ImageIcon(GetScaledImage(filtered)));
+                photo.setIcon(new ImageIcon(photo_handler.getScaledImage(filtered)));
             } catch (IOException ex) {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -664,7 +656,7 @@ public class GUI extends javax.swing.JFrame {
     }                                            
 
     private void analyze_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                               
-        PhotoAnalysis photo_analysis = new PhotoAnalysis();
+        Photo photo_analysis = new Photo();
         double pixel_average = photo_analysis.AnalyzeImage(filtered);
         analyze_brightness.setText("Average Brightness: " + pixel_average);
         int pixels_scanned = filtered.getWidth() * filtered.getHeight();
@@ -674,13 +666,13 @@ public class GUI extends javax.swing.JFrame {
 
     private void increment_varianceActionPerformed(java.awt.event.ActionEvent evt) {                                                   
         variance_slider.setValue(variance_slider.getValue() + 1);
-        settings.SetVariance(variance_slider.getValue() / 100);
+        settings.setVariance(variance_slider.getValue() / 100);
         variance_textfield.setText(variance_slider.getValue() + "%");
     }                                                  
 
     private void decrement_varianceActionPerformed(java.awt.event.ActionEvent evt) {                                                   
         variance_slider.setValue(variance_slider.getValue() - 1);
-        settings.SetVariance(variance_slider.getValue() / 100);
+        settings.setVariance(variance_slider.getValue() / 100);
         variance_textfield.setText(variance_slider.getValue() + "%");
     }                                                  
 
@@ -693,15 +685,15 @@ public class GUI extends javax.swing.JFrame {
         if(file_name == "") {
             System.out.println("No file name entered");
         } else {
-            PhotoAnalysis photo_analysis = new PhotoAnalysis();
+            Photo photo_analysis = new Photo();
         if(savejpg.isEnabled())
-            photo_analysis.SaveImage(file_name, "jpg", filtered);
+            photo_analysis.saveImage(file_name, "jpg", filtered);
         else if(savepng.isEnabled())
-            photo_analysis.SaveImage(file_name, "png", filtered);
+            photo_analysis.saveImage(file_name, "png", filtered);
         else if(savegif.isEnabled())
-            photo_analysis.SaveImage(file_name, "gif", filtered);
+            photo_analysis.saveImage(file_name, "gif", filtered);
         else if(savebmp.isEnabled())
-            photo_analysis.SaveImage(file_name, "bmp", filtered);
+            photo_analysis.saveImage(file_name, "bmp", filtered);
         }
     }                                                
 
@@ -723,25 +715,20 @@ public class GUI extends javax.swing.JFrame {
         
     }                                               
 
-    private void compare_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                               
+    private void compare_buttonActionPerformed(ActionEvent evt) {
         String file_name = comparison_textfield.getText();
-        if(file_name == "") 
+        if(file_name.equals(""))
             System.out.println("Missing argument"); /* no file name specified */
         else {
-            boolean load[] = new boolean[1]; 
-            PhotoAnalysis photo_analysis = new PhotoAnalysis();
-            compare = photo_analysis.LoadImage(file_name, load); /* load[0] will be true if file loaded correctly */
+            boolean load[] = new boolean[1];
+            compare = photo_handler.loadImage(file_name, load); /* load[0] will be true if file loaded correctly */
             if(!load[0])
                 System.out.print("Error reading file"); /* file could not be loaded */
             else {
-                double filtered_brightness = photo_analysis.AnalyzeImage(filtered);
-                double compared_brightness = photo_analysis.AnalyzeImage(compare);
-                System.out.println("This image is " + filtered_brightness);
-                System.out.println("Compared image is " + compared_brightness);
+                double filtered_brightness = photo_handler.AnalyzeImage(filtered);
+                double compared_brightness = photo_handler.AnalyzeImage(compare);
                 double difference = filtered_brightness - compared_brightness;
                 double percent_difference = (filtered_brightness - compared_brightness) / 255 * 100;
-                NumberFormat pf = NumberFormat.getPercentInstance(); /* for formatting percents */
-                /* difference is positive: current image is brighter than compared image */
                 if(difference > 0) {
                     brighter_value.setText("Current image is brighter by " + difference + " (" + 
                             Math.floor(percent_difference * 100) / 100 + " percent)");
@@ -761,43 +748,37 @@ public class GUI extends javax.swing.JFrame {
         Trial new_trial = new Trial();
         new_trial = new_trial.ReadDataFile(trial_name, success); /* read the chosen trial's data file */
         if(success[0]) { /* data from trial successfully read into 'new_trial' */
-            settings.AddTrial(new_trial); /* add to the current array of trials */
-            SetTrialTextArea();
+            settings.addTrial(new_trial); /* add to the current array of trials */
+            setTrialTextArea();
             UpdateTrialsComboBox();
         } else System.out.println("Error getting trial data");
     }                                                  
 
     private void cropimage_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                                 
         int pixels = (Integer)crop_spinner.getValue();
-        /* make sure crop value isn't larger than image itself */
+        /* make sure getCroppedImage value isn't larger than image itself */
         if(2 * pixels >= filtered.getWidth() || 2 * pixels >= filtered.getHeight()) 
-            System.out.println("Error: crop size larger than image itself");
+            System.out.println("Error: crop image size larger than image itself");
         else {
-            filtered = CropImage(pixels, filtered); /* crop filtered */
-            original = filtered; /* also crop original */
+            filtered = photo_handler.getCroppedImage(pixels, filtered); /* getCroppedImage filtered */
+            original = filtered; /* also getCroppedImage original */
             try {
-                photo.setIcon(new ImageIcon(GetScaledImage(filtered)));
+                photo.setIcon(new ImageIcon(photo_handler.getScaledImage(filtered)));
             } catch (IOException ex) {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }                                                
-
-    private void after_fieldActionPerformed(java.awt.event.ActionEvent evt) {                                            
-        // TODO add your handling code here:
-    }                                           
-
-    private void save_dialogueButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                    
-        PhotoAnalysis photo_analysis = new PhotoAnalysis();
+    }
+    private void save_dialogueButtonActionPerformed(ActionEvent evt) {
         boolean[] read_success = new boolean[1];
-        BufferedImage before = photo_analysis.LoadImage(before_field.getText(), read_success);
+        BufferedImage before = photo_handler.loadImage(before_field.getText(), read_success);
         if(read_success[0]) {
-            BufferedImage after = photo_analysis.LoadImage(after_field.getText(), read_success);
+            BufferedImage after = photo_handler.loadImage(after_field.getText(), read_success);
         if(read_success[0]) {
             /* get brightness change over course of this trial */
-            double difference = photo_analysis.AnalyzeImage(after) - photo_analysis.AnalyzeImage(before); 
+            double difference = photo_handler.AnalyzeImage(after) - photo_handler.AnalyzeImage(before);
             Trial this_trial = new Trial(trial_filename.getText(), trial_name.getText(), difference);
-            boolean write_success = this_trial.WriteTrial(this_trial);
+            boolean write_success = this_trial.writeToFile(this_trial);
             if(write_success) /* trial saved successfully - close dialogue window */
                 save_trial.setVisible(false);
             else
@@ -811,72 +792,49 @@ public class GUI extends javax.swing.JFrame {
     private void removeTrial_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                                   
     /* get value selected in combo box. This will be the trial name of the trial to remove */
     String trial_to_remove = String.valueOf(loadedTrials_comboBox.getSelectedItem());
-    settings.RemoveTrial(trial_to_remove);
+    settings.removeTrial(trial_to_remove);
     UpdateTrialsComboBox(); /* update combo box */
-    SetTrialTextArea();
+    setTrialTextArea();
     }                                                  
-    public void SetTrialTextArea() {
+    public void setTrialTextArea() {
+        ArrayList<Trial> trial_list = settings.trials();
         boolean[] success = new boolean[1];
-        ArrayList<Trial> trial_list = settings.GetTrials();
         /* holds all loaded trial data in a 2D list for easy reference */
-        ArrayList<ArrayList<String>> trial_data = new ArrayList<>();
-        for(int i = 0; i < trial_list.size(); i++) { /* populate arraylist */
-            /* load trial */
-            Trial this_trial = new Trial();
-            this_trial = this_trial.ReadDataFile(trial_list.get(i).GetFileName(), success);
-            if(success[0]) {
-                trial_data.add(this_trial.GetArrayList()); /* get trial's arraylist and add to 2D arraylist */   
-            }
+        String text_area = "";
+        /* now we need to format the data (rank\) file_name | trial_name | brightness\n)*/
+        int longest_filename = 0;
+        int longest_trialname = 0;
+        int longest_brightness = 0;
+        /* get longest string values for each value */
+        for(int i = 0; i < trial_list.size(); i++) {
+            if(trial_list.get(i).file_name.length() > longest_filename)
+                longest_filename = trial_list.get(i).file_name.length();
+            if(trial_list.get(i).trial_name.length() > longest_trialname)
+                longest_trialname = trial_list.get(i).trial_name.length();
+            if(Double.toString(trial_list.get(i).brightness_change).length() > longest_brightness)
+                longest_brightness = Double.toString(trial_list.get(i).brightness_change).length();
         }
-        if(trial_data.size() > 1) {
-            for(int i = 0; i < trial_data.size() - 1; i++) {
-                ArrayList<String> current_trial_data = trial_data.get(i);
-                double current = Double.parseDouble(current_trial_data.get(2));
-                int num = 1;
-                while(current > Double.parseDouble(trial_data.get(i + num).get(2))) {
-                    trial_data.set(i + num, current_trial_data);
-                    trial_data.set(i + num - 1, trial_data.get(i + num));
-                    num++;
-                }
-            }
-        }
-    String text_area = "";
-    /* now we need to format the data (rank\) file_name | trial_name | brightness\n)*/
-    int longest_filename = 0;
-    int longest_trialname = 0; 
-    int longest_brightness = 0;
-    /* get longest string values for each value */
-    for(int i = 0; i < trial_data.size(); i++) {
-        if(trial_data.get(i).get(0).length() > longest_filename)
-            longest_filename = trial_data.get(i).get(0).length();
-        if(trial_data.get(i).get(1).length() > longest_trialname)
-            longest_trialname = trial_data.get(i).get(1).length();
-        if(trial_data.get(i).get(2).length() > longest_brightness)
-            longest_brightness = trial_data.get(i).get(2).length();
-    }
-    for(int i = 0; i < trial_data.size(); i++) {
-        String line = (i + 1) + ". " + trial_data.get(i).get(0);
-        for(int j = trial_data.get(i).get(0).length(); j < longest_filename + 1; j++)
-            line += " ";
-        line += "| " + trial_data.get(i).get(1);
-        for(int j = trial_data.get(i).get(1).length(); j < longest_trialname + 1; j++)
-            line += " ";
-        line += "| " + trial_data.get(i).get(2);
-        for(int j = trial_data.get(i).get(2).length(); j < longest_brightness; j++)
-            line += " ";
+        for(int i = 0; i < trial_list.size(); i++) {
+            String line = (i + 1) + ". " + trial_list.get(i).file_name;
+            for(int j = trial_list.get(i).file_name.length(); j < longest_filename + 1; j++)
+                line += " ";
+            line += "| " + trial_list.get(i).trial_name;
+            for(int j = trial_list.get(i).trial_name.length(); j < longest_trialname + 1; j++)
+                line += " ";
+            line += "| " + Double.toString(trial_list.get(i).brightness_change);
         text_area += line + "\n";
-    }
+        }
     trial_textarea.setText(text_area);
     }
     /* updates 'loadedTrials_comboBox' with loaded trials */
     public void UpdateTrialsComboBox() {
         loadedTrials_comboBox.removeAllItems(); /* clear combo box */
         /* get arraylist of trials and convert to array */
-        ArrayList<Trial> trial_list = settings.GetTrials();
+        ArrayList<Trial> trial_list = settings.trials();
         /* create an empty array list to hold what will be put in the combo box  */
         ArrayList<String> combo_box = new ArrayList<>(); 
         for(int i = 0; i < trial_list.size(); i++) {
-            String trial_to_compare = trial_list.get(i).GetTrialName();
+            String trial_to_compare = trial_list.get(i).trialName();
             boolean trial_is_original = true;
             /* checks each element in combo_box to see if it is a duplicate */
             for(int j = 0; j < combo_box.size(); j++) {
@@ -896,48 +854,29 @@ public class GUI extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(
+                    java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(
+                    java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(
+                    java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(
+                    java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Settings settings = new Settings();
-                settings.LoadSettings(); /* TODO: Error handling: no file, initialize to default values */
-                
-                new GUI(settings).setVisible(true);
+                new GUI().setVisible(true);
             }
         });
     }
-    /* scales bufferedimage to 600x600 for image display */
-    public BufferedImage GetScaledImage(BufferedImage image) throws IOException {
-        return Thumbnails.of(image).size(800, 800).asBufferedImage();
-    }
-    public BufferedImage CropImage(int pixels, BufferedImage image) {
-        /* get size of new image */
-        int cropped_width = image.getWidth() - 2 * pixels;
-        int cropped_height = image.getHeight() - 2 * pixels;
-        return image.getSubimage(pixels, pixels, cropped_width, cropped_height);
-    }
+
 
     // Variables declaration - do not modify                     
     private javax.swing.JRadioButton after_button;
