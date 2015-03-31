@@ -10,7 +10,6 @@ public class Trial {
     public String file_name;
     public String trial_name;
     public Double brightness_change;
-    //public static int rank;
     
     public Trial() {}
     public Trial(String file_name, String trial_name, Double brightness_change) {
@@ -18,32 +17,29 @@ public class Trial {
         this.trial_name = trial_name;
         this.brightness_change = brightness_change;
     }
-    public void SetTrial(String file, String trial, Double change) {
+    public void setTrial(String file, String trial, Double change) {
         file_name = file;
         trial_name = trial;
         brightness_change = change;
     }
     /* methods for setting and getting object attributes */
-    public void SetFileName(String name) {file_name = name;}
-    public String GetFileName() {return file_name;}
-    public void SetTrialName(String name) {trial_name = name;}
-    public String GetTrialName() {return trial_name;}
-    public void SetBrightnessChange(Double change) {brightness_change = change;}
-    public Double GetBrightnessChange() {return brightness_change;}
-    public ArrayList<String> GetArrayList() {
-        ArrayList<String> trial_data = new ArrayList<>();
-        trial_data.add(file_name);
-        trial_data.add(trial_name);
-        trial_data.add(Double.toString(brightness_change));
-        return trial_data;
+    public void setFileName(String name) {file_name = name;}
+    public String fileName() {return file_name;}
+    public void setTrialName(String name) {trial_name = name;}
+    public String trialName() {return trial_name;}
+    public void setBrightnessChange(Double change) {brightness_change = change;}
+    public Double brightnessChange() {return brightness_change;}
+    public ArrayList<String> getData() {
+        return new ArrayList<String>() {{add(file_name);
+            add(trial_name); add(Double.toString(brightness_change));}};
     }
-    /* prints trial data (for debugging purposes) */
-    public void Print(Trial trial) {
-        System.out.print(trial.GetFileName() + " | " + trial.GetTrialName() + " | " + trial.GetBrightnessChange());
+    /* returns trial data as String */
+    public void getString(Trial trial) {
+        System.out.print(trial.fileName() + " | " + trial.trialName() + " | " + trial.brightnessChange());
     }
     /* prints trial data (for debugging purposes) */
     public void Println(Trial trial) {
-        System.out.println(trial.GetFileName() + " | " + trial.GetTrialName() + " | " + trial.GetBrightnessChange());
+        System.out.println(trial.fileName() + " | " + trial.trialName() + " | " + trial.brightnessChange());
     }
     /* gets trial info from specified file */
     public Trial ReadDataFile(String file, boolean success[]) {
@@ -53,66 +49,43 @@ public class Trial {
             FileReader trial = new FileReader(file_name);
             BufferedReader read_trial = new BufferedReader(trial);
             String line = "";
-            int line_counter = 1;
             while((line = read_trial.readLine()) != null) {
-                switch(line_counter) {
-                    case 1: 
-                        file_name = line;
-                        break;
-                    case 2:
-                        trial_name = line;
-                        break;
-                    case 3:
-                        brightness_change = Double.parseDouble(line);
-                        break;    
-                }
-                line_counter++;
+                file_name = line.substring(0, line.indexOf(","));
+                trial_name = line.substring(line.indexOf(",") + 1, line.lastIndexOf(","));
+                brightness_change = Double.parseDouble(line.substring(line.lastIndexOf(",") + 1));
             }
-            System.out.println("Loading trial " + trial_name);
-            //Trial import_trial = new Trial(file_name, trial_name, brightness_change);       
             return new Trial(file_name, trial_name, brightness_change);
         } catch (IOException e) {
-            //Print("Error reading settings file\n");
+            success[0] = false;
+        } catch (NumberFormatException e) {
             success[0] = false;
         }
         return null; /* unable to import */
     }
-    public boolean WriteTrial(Trial trial) {
-        boolean success = true;
+    public boolean writeToFile(Trial trial) {
         try {
-            FileWriter file = new FileWriter(trial.GetFileName());
+            FileWriter file = new FileWriter(trial.fileName());
             BufferedWriter write_data = new BufferedWriter(file);
             /* write settings to file (in the correct order), first converting each value to a char and comma-separating them */
-            write_data.write(trial.GetFileName());
-            write_data.newLine();
-            write_data.write(trial.GetTrialName());
-            write_data.newLine();
-            write_data.write(Double.toString(trial.GetBrightnessChange()));
+            write_data.write(trial.fileName() + "," + trial.trialName() + "," + trial.brightnessChange());
             write_data.close();
+            return true;
         } catch(IOException e) {
-            //Print("Error writing to file\n");
-            success = false;
+            return false;
         }
-        return success;
     }
     /* writes trial info to file */
-    public boolean WriteDataFile(String file_name, String trial_name, Double brightness_change) {
-        boolean success = true;
+    public boolean writeToFile(String file_name, String trial_name, Double brightness_change) {
         try {
             FileWriter file = new FileWriter(file_name);
             BufferedWriter write_data = new BufferedWriter(file);
             /* write settings to file (in the correct order), first converting each value to a char and comma-separating them */
-            write_data.write(file_name);
-            write_data.newLine();
-            write_data.write(trial_name);
-            write_data.newLine();
-            write_data.write(Double.toString(brightness_change));
+            write_data.write(file_name + "," + trial_name + "," + brightness_change);
             write_data.close();
+            return true;
         } catch(IOException e) {
-            System.out.println("Error writing to file\n");
-            success = false;
+            return false;
         }
-        return success;
     }
     public int Compare(Trial compare) {
         int action = 0; /* +1 : move up; 0 : equal; -1 : move down;*/
