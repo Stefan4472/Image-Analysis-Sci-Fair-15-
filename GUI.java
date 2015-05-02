@@ -1,6 +1,10 @@
 //import java.awt.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 //import java.awt.image.ImageObserver;
 import java.text.NumberFormat;
@@ -8,6 +12,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GUI extends javax.swing.JFrame {
     private BufferedImage original = null; /* original image loaded by user */
@@ -40,7 +45,6 @@ public class GUI extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
-
         saveimage_group = new javax.swing.ButtonGroup();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         compare_group = new javax.swing.ButtonGroup();
@@ -74,6 +78,7 @@ public class GUI extends javax.swing.JFrame {
         filterRGB_button = new javax.swing.JButton();
         importphoto_button = new javax.swing.JButton();
         import_photo = new javax.swing.JTextField();
+        import_photo.setEditable(false);
         jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         savefile_textfield = new javax.swing.JTextField();
@@ -600,24 +605,32 @@ public class GUI extends javax.swing.JFrame {
     }// </editor-fold>                        
 
     private void importphoto_buttonActionPerformed(java.awt.event.ActionEvent evt) {
-        String file_name = import_photo.getText();
-        boolean[] success = new boolean[1];
-        Photo photo_analysis = new Photo();
-        original = photo_analysis.loadImage(file_name, success);
-        if(success[0]) { 
-            settings.setFileImport(file_name);
-            //photo.setIcon(new javax.swing.ImageIcon(getClass().getResource(file_name)));
-            photo.setText("");
-            filtered = photo_analysis.ScreenImage(original, settings.red(), settings.green(), settings.blue(), settings.variance());
-            try {
-                photo.setIcon(new ImageIcon(photo_handler.getScaledImage(filtered))); /* set display photo */
-            } catch (IOException ex) {
-                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        importphoto_button.setEnabled(false);
+        final JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.home")));
+        chooser.setFileFilter(new FileNameExtensionFilter("Images", "jpg", "png", "gif", "bmp"));
+        int returnVal = chooser.showOpenDialog(importphoto_button);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File imported_file = chooser.getSelectedFile();
+            Photo photo_analysis = new Photo();
+            boolean[] success = new boolean[] { false };
+            BufferedImage imported_image = photo_analysis.loadImage(imported_file.getPath(), success);
+            if(success[0]) {
+                original = imported_image;
+                import_photo.setText(imported_file.getName());
+                settings.setFileImport(imported_file.getPath());
+                photo.setText("");
+                filtered = photo_analysis.ScreenImage(original, settings.red(), settings.green(), settings.blue(), settings.variance());
+                try {
+                    photo.setIcon(new ImageIcon(photo_handler.getScaledImage(filtered))); /* set display photo */
+                } catch (IOException ex) {
+                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                //photo.setIcon(new ImageIcon(filtered));
+            } else {
+                import_photo.setText("Error reading file");
             }
-            //photo.setIcon(new ImageIcon(filtered));
-        } else {
-            import_photo.setText("Error reading file");
         }
+        importphoto_button.setEnabled(true);
     }                                                  
 
     private void filterRGB_buttonActionPerformed(java.awt.event.ActionEvent evt) {                                                 

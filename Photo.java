@@ -3,7 +3,9 @@ import net.coobird.thumbnailator.Thumbnails;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.awt.image.ImageObserver;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -14,7 +16,6 @@ import java.util.Set;
 
 public class Photo {
     public int pixels_replaced = 0;
-
     /* Idea: Get the int array of the buffered image and manipulate that, then copy it back - much faster */
     public BufferedImage ScreenImage(BufferedImage img, int r, int g, int b, double variance) {
         /* set acceptable values for pixel color using guidelines and variance */
@@ -37,7 +38,7 @@ public class Photo {
                 int green = (pixel_rgb >> 8) & 0xff;
                 int blue = (pixel_rgb) & 0xff;
                 /* pixel color fits within accepted range */
-                if(!(red >= r_low && red <= r_high && green >= g_low && green <= g_high && blue >= b_low && b <= b_high)) {
+                if(red < r_low || red > r_high || green < g_low || green > g_high || blue < b_low || b > b_high) {
                     screened.setRGB(i, j, pixel_rgb); /* copy pixel to screened */
                 } else
                     replaced++;
