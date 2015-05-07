@@ -48,13 +48,6 @@ public class Photo {
         return screened;
     }
     public int GetPixelsReplaced() {return pixels_replaced;}
-    public BufferedImage ResizeImage(BufferedImage img, int width, int height) {
-        //return Thumbnails.of(img).size(width, height).asBufferedImage();
-        return img;
-    }           
-    public BufferedImage FilterGrayscale(BufferedImage img) {
-        return img;
-    }
     public double AnalyzeImage(BufferedImage img) {
         double average;
         int height = img.getHeight();
@@ -89,17 +82,6 @@ public class Photo {
             Println("Error reading file");
             return null;
         }
-    }
-    public boolean saveImage(String file_name, String ending, BufferedImage to_save) {
-        boolean success = true;
-        File output_file = new File(file_name + "." + ending);
-        try {
-            ImageIO.write(to_save, ending, output_file);
-        } catch(IOException e) {
-            Println("Error writing image.");
-            success = false;
-        }
-        return success;
     }
     /* scales bufferedimage to 600x600 for image display */
     public BufferedImage getScaledImage(BufferedImage image) throws IOException {
